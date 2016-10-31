@@ -55,8 +55,8 @@ which requires a configuration file, usually **/etc/bolo.conf**.
     rate    m/./
 
 This is a **catch-all** configuration, that expects all submitted
-metrics to be collected at at least a 1-minute resolution, and
-aggregate at the per-minute mark.  Check **bolo.conf(5)** for
+metrics to be collected with at least a 1-minute resolution, and
+aggregated at the per-minute mark.  Check **bolo.conf(5)** for
 details and more advanced usage.
 
 You'll have to create the bolo user (or adjust how you launch the
@@ -83,11 +83,10 @@ data to bolo, via the _listener_ port (TCP/2999 in our case):
     $ bolo send -e tcp://localhost:2999 -t sample universe 42
     $ bolo send -e tcp://localhost:2999 -t sample everything 42
 
-At this point, you will probably want to go get
-[bolo-collectors][collectors] installed to give you some real
-metric collectors, for real things like memory usage, swap rates,
-CPU time allocation, etc.  The output from these collectors can be
-piped directly into **bolo send**:
+At this point, you will want to have [bolo-collectors][collectors]
+installed to give you some real metric collectors, for things like
+memory usage, swap rates, CPU time allocation, etc.  The output
+from these collectors can be piped directly into **bolo send**:
 
     $ /path/to/collector | bolo send -e tcp://localhost:2999
 
@@ -140,8 +139,8 @@ If you're into [BOSH][bosh] for your infrastructure, we have a
 
 If you are operating inside of a more traditional server-centric
 environment, running on either Debian / Ubuntu or CentOS, you can
-take advantage of pre-built packages for bolo and it's
-dependencies, hosted on [packagecloud][pkgcloud].
+take advantage of pre-built packages for bolo and its dependencies,
+hosted on [packagecloud][pkgcloud].
 
 For Debian/Ubuntu:
 
