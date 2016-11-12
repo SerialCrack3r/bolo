@@ -491,6 +491,7 @@ int binf_write(db_t *db, const char *file, int db_size)
 	addr = mmap(NULL, db_size * 1024 * 1024, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 	if (addr == MAP_FAILED) {
 		logger(LOG_ERR, "failed to allocate mmap %s, for writing: %s", file, strerror(errno));
+		close(fd);
 		return -1;
 	}
 
@@ -529,6 +530,7 @@ int binf_write(db_t *db, const char *file, int db_size)
 
 	logger(LOG_INFO, "done writing savefile %s", file);
 	close(fd);
+	munmap(addr, db_size * 1024 * 1024);
 	return 0;
 }
 
@@ -559,6 +561,7 @@ int binf_read(db_t *db, const char *file, int db_size)
 		    PROT_READ, MAP_SHARED, fd, 0);
 	if (addr == MAP_FAILED) {
 		logger(LOG_ERR, "failed to allocate mmap %s, for reading: %s", file, strerror(errno));
+		close(fd);
 		return -1;
 	}
 
@@ -569,6 +572,7 @@ int binf_read(db_t *db, const char *file, int db_size)
 	if (memcmp(&header.magic, "BOLO", 4) != 0) {
 		logger(LOG_ERR, "%s does not seem to be a bolo savefile", file);
 		close(fd);
+		munmap(addr, db_size * 1024 * 1024);
 		return -1;
 	}
 
@@ -584,6 +588,7 @@ int binf_read(db_t *db, const char *file, int db_size)
 		logger(LOG_ERR, "%s is a v%u savefile; this version of bolo only supports v1 files",
 			file, header.version);
 		close(fd);
+		munmap(addr, db_size * 1024 * 1024);
 		return -1;
 	}
 
@@ -593,6 +598,7 @@ int binf_read(db_t *db, const char *file, int db_size)
 		if (s_read_record(addr, &so_far, &type, &payload.unknown) != 0) {
 			logger(LOG_ERR, "%s: failed to read all of record #%i", file, i);
 			close(fd);
+			munmap(addr, db_size * 1024 * 1024);
 			return -1;
 		}
 
@@ -675,6 +681,7 @@ int binf_read(db_t *db, const char *file, int db_size)
 		default:
 			logger(LOG_ERR, "unknown record type %02x found!", type);
 			close(fd);
+			munmap(addr, db_size * 1024 * 1024);
 			return 1;
 		}
 	}
@@ -683,11 +690,13 @@ int binf_read(db_t *db, const char *file, int db_size)
 	if (trailer[0] || trailer[1]) {
 		logger(LOG_ERR, "no savefile trailer found!");
 		close(fd);
+		munmap(addr, db_size * 1024 * 1024);
 		return 1;
 	}
 
 	logger(LOG_INFO, "done reading savefile %s", file);
 	close(fd);
+	munmap(addr, db_size * 1024 * 1024);
 	return 0;
 }
 
@@ -703,13 +712,17 @@ int binf_sync(const char *file, int db_size)
 	void *addr = mmap(NULL, db_size * 1024 * 1024, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 	if (addr == MAP_FAILED) {
 		logger(LOG_ERR, "failed to allocate mmap %s for syncing: %s", file, strerror(errno));
+		close(fd);
 		return -1;
 	}
 	if((msync(addr, db_size * 1024 * 1024, MS_ASYNC)) == -1) {
 		logger(LOG_ERR, "failed to sync mmap %s: %s", file, strerror(errno));
+		close(fd);
+		munmap(addr, db_size * 1024 * 1024);
 		return -1;
 	}
 	logger(LOG_NOTICE, "successfully synced state %s to disk", file);
 	close(fd);
+	munmap(addr, db_size * 1024 * 1024);
 	return 0;
 }
