@@ -9,7 +9,8 @@ check_cla() {
 
   echo "Checking CONTRIBUTOR status..."
   for x in $(git log --pretty=format:'%aE %h - %s (%aN <%aE>)' \
-                 ${TRAVIS_COMMIT_RANGE}); do
+                 ${TRAVIS_COMMIT_RANGE} \
+                 | grep -v ' Merge pull request #'); do
     email=${x%% *}
     desc=${x#* }
     if grep -q '^[^#].*<'${email}'>' CONTRIBUTORS; then
