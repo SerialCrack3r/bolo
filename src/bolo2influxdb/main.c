@@ -222,7 +222,7 @@ int dispatcher_thread(void *zmq, const char *endpoint, const char *influx) /* {{
 	assert(zmq != NULL);
 	assert(endpoint != NULL);
 
-	int rc, port;
+	int rc, port = 8089;
 	char *host, *p;
 	struct sockaddr_in addr;
 
