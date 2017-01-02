@@ -278,10 +278,10 @@ LANGUAGE plpgsql;
 CREATE TABLE events (
 	id          SERIAL PRIMARY KEY,
 	name        TEXT NOT NULL,
-	occured_at  TIMESTAMP NOT NULL,
+	occurred_at  TIMESTAMP NOT NULL,
 
 	extra       TEXT,
 
-	UNIQUE (name, occured_at)
+	UNIQUE (name, occurred_at)
 );
-CREATE INDEX events_idx ON events (name, occured_at, extra);
+CREATE INDEX events_idx ON events (name, occurred_at, extra);
